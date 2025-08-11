@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Akuntansi Digital - Final Edition</title>
+    <link rel="shortcut icon" type="image/x-icon" href="download (1).png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .gradient-danger {
+            background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+        }
+        
+        .gradient-warning {
+            background: linear-gradient(135deg, #fdbb2d 0%, #22c1c3 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .animate-slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .animate-scale-in {
+            animation: scaleIn 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .transaction-row {
+            transition: all 0.3s ease;
+        }
+        
+        .transaction-row:hover {
+            background: linear-gradient(90deg, #f8fafc 0%, #e2e8f0 100%);
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-backdrop {
+            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.6);
+        }
+        
+        .floating-action {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1001;
+            min-width: 300px;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .stats-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .sidebar {
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 50;
+                background: white;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            }
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .account-code {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+        
+        .journal-entry {
+            border-left: 4px solid #10b981;
+            background: linear-gradient(90deg, #f0fdf4 0%, #ffffff 100%);
+        }
+        
+        .debit-entry {
+            color: #059669;
+            font-weight: 600;
+        }
+        
+        .credit-entry {
+            color: #dc2626;
+            font-weight: 600;
+        }
+        
+        .balance-sheet-section {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fafafa;
+        }
+        
+        .trial-balance-row:nth-child(even) {
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 overflow-x-hidden">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <h2 class="text-xl font-semibold text-gray-700">Memuat Sistem Akuntansi Pro...</h2>
+            <p class="text-gray-500 mt-2">Menyiapkan Chart of Accounts & Jurnal</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="gradient-primary text-white shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-black opacity-10"></div>
+        <div class="container mx-auto px-6 py-6 relative z-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle" class="md:hidden p-2 rounded-lg glass-effect">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                            <span class="text-2xl">📊</span>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold">Sistem Akuntansi Digital Pro</h1>
+                            <p class="text-blue-100 text-sm">Final Edition - Dengan Chart of Accounts & Jurnal</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="glass-effect px-4 py-2 rounded-lg">
+                        <span class="text-sm font-medium" id="currentDateTime"></span>
+                    </div>
+                    <button onclick="exportToExcel()" class="glass-effect px-4 py-2 rounded-lg font-medium hover:bg-white hover:bg-opacity-30 transition-all duration-300">
+                        <span class="mr-2">📊</span>
+                        Export Excel
+                    </button>
+                    <button onclick="generateFinancialStatements()" class="glass-effect px-4 py-2 rounded-lg font-medium hover:bg-white hover:bg-opacity-30 transition-all duration-300">
+                        <span class="mr-2">📋</span>
+                        Laporan Keuangan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar w-64 bg-white shadow-xl h-screen sticky top-0 z-40">
+            <div class="p-6">
+                <nav class="space-y-2">
+                    <a href="#dashboard" onclick="showSection('dashboard')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200">
+                        <span class="text-xl">📊</span>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                    <a href="#chart-of-accounts" onclick="showSection('chart-of-accounts')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200">
+                        <span class="text-xl">📋</span>
+                        <span class="font-medium">Chart of Accounts</span>
+                    </a>
+                    <a href="#journal-entry" onclick="showSection('journal-entry')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200">
+                        <span class="text-xl">📝</span>
+                        <span class="font-medium">Jurnal Umum</span>
+                    </a>
+                    <a href="#general-ledger" onclick="showSection('general-ledger')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200">
+                        <span class="text-xl">📖</span>
+                        <span class="font-medium">Buku Besar</span>
+                    </a>
+                    <a href="#trial-balance" onclick="showSection('trial-balance')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200">
+                        <span class="text-xl">⚖️</span>
+                        <span class="font-medium">Neraca Saldo</span>
+                    </a>
+                    <a href="#financial-statements" onclick="showSection('financial-statements')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200">
+                        <span class="text-xl">📈</span>
+                        <span class="font-medium">Laporan Keuangan</span>
+                    </a>
+                    <a href="#analytics" onclick="showSection('analytics')" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200">
+                        <span class="text-xl">📊</span>
+                        <span class="font-medium">Analitik</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="stats-card gradient-success text-white p-6 rounded-2xl card-hover animate-slide-up">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-green-100 text-sm font-medium">Total Aset</p>
+                                <p class="text-3xl font-bold" id="totalAssets">Rp 0</p>
+                                <p class="text-green-100 text-xs mt-1">Kode: 1xxx</p>
+                            </div>
+                            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                <span class="text-3xl">🏢</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card gradient-danger text-white p-6 rounded-2xl card-hover animate-slide-up" style="animation-delay: 0.1s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-red-100 text-sm font-medium">Total Kewajiban</p>
+                                <p class="text-3xl font-bold" id="totalLiabilities">Rp 0</p>
+                                <p class="text-red-100 text-xs mt-1">Kode: 2xxx</p>
+                            </div>
+                            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                <span class="text-3xl">💳</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card gradient-primary text-white p-6 rounded-2xl card-hover animate-slide-up" style="animation-delay: 0.2s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-blue-100 text-sm font-medium">Total Ekuitas</p>
+                                <p class="text-3xl font-bold" id="totalEquity">Rp 0</p>
+                                <p class="text-blue-100 text-xs mt-1">Kode: 3xxx</p>
+                            </div>
+                            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                <span class="text-3xl">💰</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card gradient-warning text-white p-6 rounded-2xl card-hover animate-slide-up" style="animation-delay: 0.3s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-yellow-100 text-sm font-medium">Laba Rugi</p>
+                                <p class="text-3xl font-bold" id="netIncome">Rp 0</p>
+                                <p class="text-yellow-100 text-xs mt-1">Pendapatan - Beban</p>
+                            </div>
+                            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                <span class="text-3xl">📈</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-2xl shadow-xl p-6 animate-fade-in">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Komposisi Aset</h3>
+                        <div class="chart-container">
+                            <canvas id="assetChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-xl p-6 animate-fade-in">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Tren Laba Rugi</h3>
+                        <div class="chart-container">
+                            <canvas id="profitLossChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 animate-fade-in">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Aksi Cepat</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <button onclick="showSection('journal-entry')" class="p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors text-center">
+                            <div class="text-2xl mb-2">📝</div>
+                            <div class="text-sm font-medium text-green-700">Buat Jurnal</div>
+                        </button>
+                        <button onclick="showSection('chart-of-accounts')" class="p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors text-center">
+                            <div class="text-2xl mb-2">📋</div>
+                            <div class="text-sm font-medium text-blue-700">Kelola Akun</div>
+                        </button>
+                        <button onclick="showSection('trial-balance')" class="p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors text-center">
+                            <div class="text-2xl mb-2">⚖️</div>
+                            <div class="text-sm font-medium text-purple-700">Neraca Saldo</div>
+                        </button>
+                        <button onclick="exportToExcel()" class="p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors text-center">
+                            <div class="text-2xl mb-2">📊</div>
+                            <div class="text-sm font-medium text-orange-700">Export Data</div>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chart of Accounts Section -->
+            <section id="chart-of-accounts" class="section hidden">
+                <!-- Add Account Form -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 animate-slide-up">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="mr-3 text-2xl">📋</span>
+                        Tambah Akun Baru
+                    </h2>
+                    
+                    <form id="accountForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Kode Akun</label>
+                            <input type="text" id="accountCode" placeholder="1101" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Akun</label>
+                            <input type="text" id="accountName" placeholder="Kas" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Kategori</label>
+                            <select id="accountCategory" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="Aset">🏢 Aset (1xxx)</option>
+                                <option value="Kewajiban">💳 Kewajiban (2xxx)</option>
+                                <option value="Ekuitas">💰 Ekuitas (3xxx)</option>
+                                <option value="Pendapatan">📈 Pendapatan (4xxx)</option>
+                                <option value="Beban">📉 Beban (5xxx)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full btn-primary text-white px-6 py-3 rounded-xl font-semibold">
+                                ➕ Tambah Akun
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Accounts List -->
+                <div class="bg-white rounded-2xl shadow-xl animate-fade-in">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                            <span class="mr-3 text-2xl">📋</span>
+                            Chart of Accounts
+                        </h2>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kode</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nama Akun</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kategori</th>
+                                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Saldo</th>
+                                    <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accountsTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Accounts will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Journal Entry Section -->
+            <section id="journal-entry" class="section hidden">
+                <!-- Journal Form -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 animate-slide-up">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="mr-3 text-2xl">📝</span>
+                        Buat Jurnal Umum
+                    </h2>
+                    
+                    <form id="journalForm">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal</label>
+                                <input type="date" id="journalDate" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" required>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">No. Referensi</label>
+                                <input type="text" id="journalRef" placeholder="JU001" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" required>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Keterangan</label>
+                                <input type="text" id="journalDescription" placeholder="Deskripsi transaksi" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" required>
+                            </div>
+                        </div>
+
+                        <!-- Journal Entries -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Entri Jurnal</h3>
+                            <div id="journalEntries">
+                                <!-- Journal entries will be added here -->
+                            </div>
+                            <button type="button" onclick="addJournalEntry()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                ➕ Tambah Entri
+                            </button>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <div class="text-lg font-semibold">
+                                <span class="mr-4">Total Debit: <span id="totalDebit" class="debit-entry">Rp 0</span></span>
+                                <span>Total Kredit: <span id="totalCredit" class="credit-entry">Rp 0</span></span>
+                            </div>
+                            <button type="submit" class="btn-primary text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg">
+                                💾 Simpan Jurnal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Journal History -->
+                <div class="bg-white rounded-2xl shadow-xl animate-fade-in">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                            <span class="mr-3 text-2xl">📖</span>
+                            Riwayat Jurnal
+                        </h2>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ref</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Keterangan</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Akun</th>
+                                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Debit</th>
+                                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Kredit</th>
+                                    <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="journalTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Journal entries will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- General Ledger Section -->
+            <section id="general-ledger" class="section hidden">
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                            <span class="mr-3 text-2xl">📖</span>
+                            Buku Besar
+                        </h2>
+                        <select id="ledgerAccountFilter" class="px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option value="">Semua Akun</option>
+                        </select>
+                    </div>
+                    
+                    <div id="ledgerContent">
+                        <!-- Ledger content will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trial Balance Section -->
+            <section id="trial-balance" class="section hidden">
+                <div class="bg-white rounded-2xl shadow-xl p-6 animate-fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                            <span class="mr-3 text-2xl">⚖️</span>
+                            Neraca Saldo
+                        </h2>
+                        <div class="flex items-center space-x-4">
+                            <input type="date" id="trialBalanceDate" class="px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <button onclick="generateTrialBalance()" class="btn-primary text-white px-6 py-2 rounded-xl font-semibold">
+                                🔄 Generate
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kode</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nama Akun</th>
+                                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Debit</th>
+                                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Kredit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trialBalanceTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Trial balance will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Financial Statements Section -->
+            <section id="financial-statements" class="section hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Balance Sheet -->
+                    <div class="bg-white rounded-2xl shadow-xl p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                            <span class="mr-3 text-2xl">📊</span>
+                            Neraca (Balance Sheet)
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <!-- Assets -->
+                            <div class="balance-sheet-section p-4">
+                                <h4 class="font-bold text-green-700 mb-3">ASET</h4>
+                                <div id="assetsSection" class="space-y-2">
+                                    <!-- Assets will be populated here -->
+                                </div>
+                                <div class="border-t-2 border-green-700 mt-3 pt-2">
+                                    <div class="flex justify-between font-bold text-green-700">
+                                        <span>Total Aset</span>
+                                        <span id="totalAssetsBS">Rp 0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Liabilities & Equity -->
+                            <div class="balance-sheet-section p-4">
+                                <h4 class="font-bold text-red-700 mb-3">KEWAJIBAN & EKUITAS</h4>
+                                <div id="liabilitiesSection" class="space-y-2 mb-4">
+                                    <!-- Liabilities will be populated here -->
+                                </div>
+                                <div id="equitySection" class="space-y-2">
+                                    <!-- Equity will be populated here -->
+                                </div>
+                                <div class="border-t-2 border-red-700 mt-3 pt-2">
+                                    <div class="flex justify-between font-bold text-red-700">
+                                        <span>Total Kewajiban & Ekuitas</span>
+                                        <span id="totalLiabilitiesEquityBS">Rp 0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Income Statement -->
+                    <div class="bg-white rounded-2xl shadow-xl p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                            <span class="mr-3 text-2xl">📈</span>
+                            Laporan Laba Rugi
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <!-- Revenue -->
+                            <div class="balance-sheet-section p-4">
+                                <h4 class="font-bold text-blue-700 mb-3">PENDAPATAN</h4>
+                                <div id="revenueSection" class="space-y-2">
+                                    <!-- Revenue will be populated here -->
+                                </div>
+                                <div class="border-t-2 border-blue-700 mt-3 pt-2">
+                                    <div class="flex justify-between font-bold text-blue-700">
+                                        <span>Total Pendapatan</span>
+                                        <span id="totalRevenueIS">Rp 0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Expenses -->
+                            <div class="balance-sheet-section p-4">
+                                <h4 class="font-bold text-red-700 mb-3">BEBAN</h4>
+                                <div id="expensesSection" class="space-y-2">
+                                    <!-- Expenses will be populated here -->
+                                </div>
+                                <div class="border-t-2 border-red-700 mt-3 pt-2">
+                                    <div class="flex justify-between font-bold text-red-700">
+                                        <span>Total Beban</span>
+                                        <span id="totalExpensesIS">Rp 0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Net Income -->
+                            <div class="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-xl border-2 border-green-300">
+                                <div class="flex justify-between font-bold text-xl text-green-700">
+                                    <span>Laba Bersih</span>
+                                    <span id="netIncomeIS">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="section hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-2xl shadow-xl p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Rasio Keuangan</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                                <span class="font-medium">Current Ratio</span>
+                                <span class="font-bold text-blue-600" id="currentRatio">0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span class="font-medium">Debt to Equity</span>
+                                <span class="font-bold text-green-600" id="debtToEquity">0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                                <span class="font-medium">ROA (%)</span>
+                                <span class="font-bold text-purple-600" id="roa">0.00%</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
+                                <span class="font-medium">ROE (%)</span>
+                                <span class="font-bold text-orange-600" id="roe">0.00%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-xl p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Tren Bulanan</h3>
+                        <div class="chart-container">
+                            <canvas id="monthlyTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="floating-action">
+        <button onclick="showSection('journal-entry')" class="w-16 h-16 btn-primary text-white rounded-full shadow-2xl hover:scale-110 transition-transform duration-300">
+            <span class="text-2xl">📝</span>
+        </button>
+    </div>
+
+    <script>
+        // Global variables
+        let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+        let journalEntries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+        let currentSection = 'dashboard';
+        let charts = {};
+        let journalEntryCounter = 0;
+        
+        // Default Chart of Accounts
+        const defaultAccounts = [
+            { code: '1101', name: 'Kas', category: 'Aset', balance: 0 },
+            { code: '1102', name: 'Bank', category: 'Aset', balance: 0 },
+            { code: '1201', name: 'Piutang Usaha', category: 'Aset', balance: 0 },
+            { code: '1301', name: 'Persediaan', category: 'Aset', balance: 0 },
+            { code: '1401', name: 'Peralatan', category: 'Aset', balance: 0 },
+            { code: '2101', name: 'Utang Usaha', category: 'Kewajiban', balance: 0 },
+            { code: '2201', name: 'Utang Bank', category: 'Kewajiban', balance: 0 },
+            { code: '3101', name: 'Modal Pemilik', category: 'Ekuitas', balance: 0 },
+            { code: '3201', name: 'Laba Ditahan', category: 'Ekuitas', balance: 0 },
+            { code: '4101', name: 'Pendapatan Jasa', category: 'Pendapatan', balance: 0 },
+            { code: '4201', name: 'Pendapatan Lain-lain', category: 'Pendapatan', balance: 0 },
+            { code: '5101', name: 'Beban Gaji', category: 'Beban', balance: 0 },
+            { code: '5201', name: 'Beban Sewa', category: 'Beban', balance: 0 },
+            { code: '5301', name: 'Beban Listrik', category: 'Beban', balance: 0 },
+            { code: '5401', name: 'Beban Lain-lain', category: 'Beban', balance: 0 }
+        ];
+        
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+                initializeApp();
+            }, 1500);
+        });
+        
+        function initializeApp() {
+            // Initialize default accounts if empty
+            if (accounts.length === 0) {
+                accounts = [...defaultAccounts];
+                saveData();
+            }
+            
+            updateCurrentDateTime();
+            renderAccounts();
+            renderJournalEntries();
+            updateDashboard();
+            updateFinancialStatements();
+            initializeCharts();
+            populateLedgerFilter();
+            
+            // Set default dates
+            document.getElementById('journalDate').valueAsDate = new Date();
+            document.getElementById('trialBalanceDate').valueAsDate = new Date();
+            
+            // Update time every minute
+            setInterval(updateCurrentDateTime, 60000);
+            
+            // Auto-save every 30 seconds
+            setInterval(autoSave, 30000);
+            
+            // Generate initial journal reference
+            generateJournalReference();
+        }
+        
+        // Update current date and time
+        function updateCurrentDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('id-ID', options);
+        }
+        
+        // Section navigation
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName).classList.remove('hidden');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('bg-purple-100', 'text-purple-600');
+            });
+            
+            document.querySelector(`[onclick="showSection('${sectionName}')"]`).classList.add('bg-purple-100', 'text-purple-600');
+            
+            currentSection = sectionName;
+            
+            // Update specific sections
+            if (sectionName === 'general-ledger') {
+                renderGeneralLedger();
+            } else if (sectionName === 'trial-balance') {
+                generateTrialBalance();
+            } else if (sectionName === 'financial-statements') {
+                updateFinancialStatements();
+            } else if (sectionName === 'analytics') {
+                updateAnalytics();
+            }
+            
+            // Close sidebar on mobile
+            if (window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('hidden');
+            }
+        }
+        
+        // Sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        });
+        
+        // Account form submission
+        document.getElementById('accountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const account = {
+                code: document.getElementById('accountCode').value,
+                name: document.getElementById('accountName').value,
+                category: document.getElementById('accountCategory').value,
+                balance: 0
+            };
+            
+            // Check if account code already exists
+            if (accounts.find(acc => acc.code === account.code)) {
+                showNotification('❌ Kode akun sudah ada!', 'error');
+                return;
+            }
+            
+            accounts.push(account);
+            accounts.sort((a, b) => a.code.localeCompare(b.code));
+            
+            saveData();
+            renderAccounts();
+            populateLedgerFilter();
+            
+            // Reset form
+            this.reset();
+            
+            showNotification('✅ Akun berhasil ditambahkan!', 'success');
+        });
+        
+        // Generate journal reference
+        function generateJournalReference() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const count = journalEntries.length + 1;
+            
+            document.getElementById('journalRef').value = `JU${year}${month}${String(count).padStart(3, '0')}`;
+        }
+        
+        // Add journal entry row
+        function addJournalEntry() {
+            journalEntryCounter++;
+            const entriesDiv = document.getElementById('journalEntries');
+            
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'journal-entry p-4 rounded-xl mb-4';
+            entryDiv.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Akun</label>
+                        <select class="entry-account w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent" required>
+                            <option value="">Pilih Akun</option>
+                            ${accounts.map(acc => `<option value="${acc.code}">${acc.code} - ${acc.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Debit</label>
+                        <input type="number" class="entry-debit w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="0" min="0" step="0.01">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Kredit</label>
+                        <input type="number" class="entry-credit w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="0" min="0" step="0.01">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" onclick="removeJournalEntry(this)" class="w-full px-4 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors">
+                            🗑️ Hapus
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            entriesDiv.appendChild(entryDiv);
+            
+            // Add event listeners for calculation
+            const debitInput = entryDiv.querySelector('.entry-debit');
+            const creditInput = entryDiv.querySelector('.entry-credit');
+            
+            debitInput.addEventListener('input', function() {
+                if (this.value) creditInput.value = '';
+                calculateJournalTotals();
+            });
+            
+            creditInput.addEventListener('input', function() {
+                if (this.value) debitInput.value = '';
+                calculateJournalTotals();
+            });
+        }
+        
+        // Remove journal entry row
+        function removeJournalEntry(button) {
+            button.closest('.journal-entry').remove();
+            calculateJournalTotals();
+        }
+        
+        // Calculate journal totals
+        function calculateJournalTotals() {
+            let totalDebit = 0;
+            let totalCredit = 0;
+            
+            document.querySelectorAll('.entry-debit').forEach(input => {
+                if (input.value) totalDebit += parseFloat(input.value);
+            });
+            
+            document.querySelectorAll('.entry-credit').forEach(input => {
+                if (input.value) totalCredit += parseFloat(input.value);
+            });
+            
+            document.getElementById('totalDebit').textContent = formatCurrency(totalDebit);
+            document.getElementById('totalCredit').textContent = formatCurrency(totalCredit);
+        }
+        
+        // Journal form submission
+        document.getElementById('journalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const entries = [];
+            const journalEntryDivs = document.querySelectorAll('.journal-entry');
+            
+            journalEntryDivs.forEach(div => {
+                const account = div.querySelector('.entry-account').value;
+                const debit = parseFloat(div.querySelector('.entry-debit').value) || 0;
+                const credit = parseFloat(div.querySelector('.entry-credit').value) || 0;
+                
+                if (account && (debit > 0 || credit > 0)) {
+                    entries.push({ account, debit, credit });
+                }
+            });
+            
+            if (entries.length < 2) {
+                showNotification('❌ Minimal 2 entri jurnal diperlukan!', 'error');
+                return;
+            }
+            
+            const totalDebit = entries.reduce((sum, entry) => sum + entry.debit, 0);
+            const totalCredit = entries.reduce((sum, entry) => sum + entry.credit, 0);
+            
+            if (Math.abs(totalDebit - totalCredit) > 0.01) {
+                showNotification('❌ Total debit dan kredit harus seimbang!', 'error');
+                return;
+            }
+            
+            const journal = {
+                id: Date.now(),
+                date: document.getElementById('journalDate').value,
+                reference: document.getElementById('journalRef').value,
+                description: document.getElementById('journalDescription').value,
+                entries: entries,
+                timestamp: new Date().toISOString()
+            };
+            
+            journalEntries.push(journal);
+            
+            // Update account balances
+            entries.forEach(entry => {
+                const account = accounts.find(acc => acc.code === entry.account);
+                if (account) {
+                    if (['Aset', 'Beban'].includes(account.category)) {
+                        account.balance += entry.debit - entry.credit;
+                    } else {
+                        account.balance += entry.credit - entry.debit;
+                    }
+                }
+            });
+            
+            saveData();
+            renderJournalEntries();
+            renderAccounts();
+            updateDashboard();
+            updateFinancialStatements();
+            
+            // Reset form
+            this.reset();
+            document.getElementById('journalEntries').innerHTML = '';
+            journalEntryCounter = 0;
+            generateJournalReference();
+            document.getElementById('journalDate').valueAsDate = new Date();
+            
+            showNotification('✅ Jurnal berhasil disimpan!', 'success');
+        });
+        
+        // Add initial journal entry
+        setTimeout(() => {
+            addJournalEntry();
+            addJournalEntry();
+        }, 100);
+        
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+            localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
+        }
+        
+        // Auto-save function
+        function autoSave() {
+            saveData();
+            console.log('Data auto-saved at', new Date().toLocaleTimeString());
+        }
+        
+        // Render accounts
+        function renderAccounts() {
+            const tbody = document.getElementById('accountsTable');
+            
+            if (accounts.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                            <div class="flex flex-col items-center">
+                                <span class="text-6xl mb-4 pulse-animation">📋</span>
+                                <p class="text-lg font-medium">Belum ada akun</p>
+                                <p class="text-sm">Tambahkan akun untuk memulai</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = accounts.map(account => `
+                <tr class="transaction-row">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="account-code">${account.code}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ${account.name}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getCategoryColor(account.category)}">
+                            ${getCategoryIcon(account.category)} ${account.category}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold ${account.balance >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${formatCurrency(account.balance)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button onclick="deleteAccount('${account.code}')" class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors">
+                            <span class="text-lg">🗑️</span>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Get category color
+        function getCategoryColor(category) {
+            const colors = {
+                'Aset': 'bg-green-100 text-green-800',
+                'Kewajiban': 'bg-red-100 text-red-800',
+                'Ekuitas': 'bg-blue-100 text-blue-800',
+                'Pendapatan': 'bg-purple-100 text-purple-800',
+                'Beban': 'bg-orange-100 text-orange-800'
+            };
+            return colors[category] || 'bg-gray-100 text-gray-800';
+        }
+        
+        // Get category icon
+        function getCategoryIcon(category) {
+            const icons = {
+                'Aset': '🏢',
+                'Kewajiban': '💳',
+                'Ekuitas': '💰',
+                'Pendapatan': '📈',
+                'Beban': '📉'
+            };
+            return icons[category] || '📋';
+        }
+        
+        // Delete account
+        function deleteAccount(code) {
+            if (confirm(`Apakah Anda yakin ingin menghapus akun ${code}?`)) {
+                accounts = accounts.filter(acc => acc.code !== code);
+                saveData();
+                renderAccounts();
+                populateLedgerFilter();
+                showNotification('🗑️ Akun berhasil dihapus!', 'success');
+            }
+        }
+        
+        // Render journal entries
+        function renderJournalEntries() {
+            const tbody = document.getElementById('journalTable');
+            
+            if (journalEntries.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                            <div class="flex flex-col items-center">
+                                <span class="text-6xl mb-4 pulse-animation">📝</span>
+                                <p class="text-lg font-medium">Belum ada jurnal</p>
+                                <p class="text-sm">Buat jurnal pertama Anda</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            journalEntries.forEach(journal => {
+                journal.entries.forEach((entry, index) => {
+                    const account = accounts.find(acc => acc.code === entry.account);
+                    html += `
+                        <tr class="transaction-row">
+                            ${index === 0 ? `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" rowspan="${journal.entries.length}">
+                                    ${formatDate(journal.date)}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600" rowspan="${journal.entries.length}">
+                                    ${journal.reference}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900" rowspan="${journal.entries.length}">
+                                    ${journal.description}
+                                </td>
+                            ` : ''}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <span class="account-code">${entry.account}</span> - ${account ? account.name : 'Unknown'}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold debit-entry">
+                                ${entry.debit > 0 ? formatCurrency(entry.debit) : ''}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold credit-entry">
+                                ${entry.credit > 0 ? formatCurrency(entry.credit) : ''}
+                            </td>
+                            ${index === 0 ? `
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium" rowspan="${journal.entries.length}">
+                                    <button onclick="deleteJournal(${journal.id})" class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors">
+                                        <span class="text-lg">🗑️</span>
+                                    </button>
+                                </td>
+                            ` : ''}
+                        </tr>
+                    `;
+                });
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        // Delete journal
+        function deleteJournal(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus jurnal ini?')) {
+                const journal = journalEntries.find(j => j.id === id);
+                
+                // Reverse account balances
+                journal.entries.forEach(entry => {
+                    const account = accounts.find(acc => acc.code === entry.account);
+                    if (account) {
+                        if (['Aset', 'Beban'].includes(account.category)) {
+                            account.balance -= entry.debit - entry.credit;
+                        } else {
+                            account.balance -= entry.credit - entry.debit;
+                        }
+                    }
+                });
+                
+                journalEntries = journalEntries.filter(j => j.id !== id);
+                
+                saveData();
+                renderJournalEntries();
+                renderAccounts();
+                updateDashboard();
+                updateFinancialStatements();
+                
+                showNotification('🗑️ Jurnal berhasil dihapus!', 'success');
+            }
+        }
+        
+        // Populate ledger filter
+        function populateLedgerFilter() {
+            const select = document.getElementById('ledgerAccountFilter');
+            select.innerHTML = '<option value="">Semua Akun</option>';
+            
+            accounts.forEach(account => {
+                const option = document.createElement('option');
+                option.value = account.code;
+                option.textContent = `${account.code} - ${account.name}`;
+                select.appendChild(option);
+            });
+        }
+        
+        // Render general ledger
+        function renderGeneralLedger() {
+            const content = document.getElementById('ledgerContent');
+            const filterAccount = document.getElementById('ledgerAccountFilter').value;
+            
+            let filteredAccounts = accounts;
+            if (filterAccount) {
+                filteredAccounts = accounts.filter(acc => acc.code === filterAccount);
+            }
+            
+            let html = '';
+            
+            filteredAccounts.forEach(account => {
+                const accountEntries = [];
+                
+                journalEntries.forEach(journal => {
+                    journal.entries.forEach(entry => {
+                        if (entry.account === account.code) {
+                            accountEntries.push({
+                                date: journal.date,
+                                reference: journal.reference,
+                                description: journal.description,
+                                debit: entry.debit,
+                                credit: entry.credit
+                            });
+                        }
+                    });
+                });
+                
+                if (accountEntries.length > 0 || !filterAccount) {
+                    html += `
+                        <div class="mb-8 bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4">
+                                <span class="account-code">${account.code}</span> - ${account.name}
+                            </h3>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-white">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Tanggal</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Ref</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Keterangan</th>
+                                            <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase">Debit</th>
+                                            <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase">Kredit</th>
+                                            <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase">Saldo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                    `;
+                    
+                    let runningBalance = 0;
+                    accountEntries.forEach(entry => {
+                        if (['Aset', 'Beban'].includes(account.category)) {
+                            runningBalance += entry.debit - entry.credit;
+                        } else {
+                            runningBalance += entry.credit - entry.debit;
+                        }
+                        
+                        html += `
+                            <tr class="bg-white">
+                                <td class="px-4 py-3 text-sm text-gray-900">${formatDate(entry.date)}</td>
+                                <td class="px-4 py-3 text-sm text-blue-600 font-medium">${entry.reference}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">${entry.description}</td>
+                                <td class="px-4 py-3 text-sm text-right debit-entry">${entry.debit > 0 ? formatCurrency(entry.debit) : ''}</td>
+                                <td class="px-4 py-3 text-sm text-right credit-entry">${entry.credit > 0 ? formatCurrency(entry.credit) : ''}</td>
+                                <td class="px-4 py-3 text-sm text-right font-bold ${runningBalance >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(runningBalance)}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (html === '') {
+                html = `
+                    <div class="text-center py-12 text-gray-500">
+                        <span class="text-6xl mb-4 block">📖</span>
+                        <p class="text-lg font-medium">Tidak ada data buku besar</p>
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = html;
+        }
+        
+        // Generate trial balance
+        function generateTrialBalance() {
+            const tbody = document.getElementById('trialBalanceTable');
+            let totalDebit = 0;
+            let totalCredit = 0;
+            
+            let html = '';
+            
+            accounts.forEach(account => {
+                if (account.balance !== 0) {
+                    const isDebitBalance = (['Aset', 'Beban'].includes(account.category) && account.balance > 0) ||
+                                         (['Kewajiban', 'Ekuitas', 'Pendapatan'].includes(account.category) && account.balance < 0);
+                    
+                    const debitAmount = isDebitBalance ? Math.abs(account.balance) : 0;
+                    const creditAmount = !isDebitBalance ? Math.abs(account.balance) : 0;
+                    
+                    totalDebit += debitAmount;
+                    totalCredit += creditAmount;
+                    
+                    html += `
+                        <tr class="trial-balance-row">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="account-code">${account.code}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                ${account.name}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold debit-entry">
+                                ${debitAmount > 0 ? formatCurrency(debitAmount) : ''}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold credit-entry">
+                                ${creditAmount > 0 ? formatCurrency(creditAmount) : ''}
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+            
+            // Add total row
+            html += `
+                <tr class="bg-gray-100 font-bold">
+                    <td class="px-6 py-4 whitespace-nowrap" colspan="2">
+                        <span class="text-lg">TOTAL</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-lg debit-entry">
+                        ${formatCurrency(totalDebit)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-lg credit-entry">
+                        ${formatCurrency(totalCredit)}
+                    </td>
+                </tr>
+            `;
+            
+            tbody.innerHTML = html;
+        }
+        
+        // Update dashboard
+        function updateDashboard() {
+            const totalAssets = accounts.filter(acc => acc.category === 'Aset').reduce((sum, acc) => sum + acc.balance, 0);
+            const totalLiabilities = accounts.filter(acc => acc.category === 'Kewajiban').reduce((sum, acc) => sum + acc.balance, 0);
+            const totalEquity = accounts.filter(acc => acc.category === 'Ekuitas').reduce((sum, acc) => sum + acc.balance, 0);
+            const totalRevenue = accounts.filter(acc => acc.category === 'Pendapatan').reduce((sum, acc) => sum + acc.balance, 0);
+            const totalExpenses = accounts.filter(acc => acc.category === 'Beban').reduce((sum, acc) => sum + acc.balance, 0);
+            const netIncome = totalRevenue - totalExpenses;
+            
+            document.getElementById('totalAssets').textContent = formatCurrency(totalAssets);
+            document.getElementById('totalLiabilities').textContent = formatCurrency(totalLiabilities);
+            document.getElementById('totalEquity').textContent = formatCurrency(totalEquity);
+            document.getElementById('netIncome').textContent = formatCurrency(netIncome);
+        }
+        
+        // Update financial statements
+        function updateFinancialStatements() {
+            updateBalanceSheet();
+            updateIncomeStatement();
+        }
+        
+        // Update balance sheet
+        function updateBalanceSheet() {
+            const assetsSection = document.getElementById('assetsSection');
+            const liabilitiesSection = document.getElementById('liabilitiesSection');
+            const equitySection = document.getElementById('equitySection');
+            
+            let totalAssets = 0;
+            let totalLiabilities = 0;
+            let totalEquity = 0;
+            
+            // Assets
+            let assetsHtml = '';
+            accounts.filter(acc => acc.category === 'Aset' && acc.balance !== 0).forEach(account => {
+                totalAssets += account.balance;
+                assetsHtml += `
+                    <div class="flex justify-between">
+                        <span><span class="account-code">${account.code}</span> ${account.name}</span>
+                        <span class="font-medium">${formatCurrency(account.balance)}</span>
+                    </div>
+                `;
+            });
+            assetsSection.innerHTML = assetsHtml;
+            
+            // Liabilities
+            let liabilitiesHtml = '';
+            accounts.filter(acc => acc.category === 'Kewajiban' && acc.balance !== 0).forEach(account => {
+                totalLiabilities += account.balance;
+                liabilitiesHtml += `
+                    <div class="flex justify-between">
+                        <span><span class="account-code">${account.code}</span> ${account.name}</span>
+                        <span class="font-medium">${formatCurrency(account.balance)}</span>
+                    </div>
+                `;
+            });
+            liabilitiesSection.innerHTML = liabilitiesHtml;
+            
+            // Equity
+            let equityHtml = '';
+            accounts.filter(acc => acc.category === 'Ekuitas' && acc.balance !== 0).forEach(account => {
+                totalEquity += account.balance;
+                equityHtml += `
+                    <div class="flex justify-between">
+                        <span><span class="account-code">${account.code}</span> ${account.name}</span>
+                        <span class="font-medium">${formatCurrency(account.balance)}</span>
+                    </div>
+                `;
+            });
+            equitySection.innerHTML = equityHtml;
+            
+            document.getElementById('totalAssetsBS').textContent = formatCurrency(totalAssets);
+            document.getElementById('totalLiabilitiesEquityBS').textContent = formatCurrency(totalLiabilities + totalEquity);
+        }
+        
+        // Update income statement
+        function updateIncomeStatement() {
+            const revenueSection = document.getElementById('revenueSection');
+            const expensesSection = document.getElementById('expensesSection');
+            
+            let totalRevenue = 0;
+            let totalExpenses = 0;
+            
+            // Revenue
+            let revenueHtml = '';
+            accounts.filter(acc => acc.category === 'Pendapatan' && acc.balance !== 0).forEach(account => {
+                totalRevenue += account.balance;
+                revenueHtml += `
+                    <div class="flex justify-between">
+                        <span><span class="account-code">${account.code}</span> ${account.name}</span>
+                        <span class="font-medium">${formatCurrency(account.balance)}</span>
+                    </div>
+                `;
+            });
+            revenueSection.innerHTML = revenueHtml;
+            
+            // Expenses
+            let expensesHtml = '';
+            accounts.filter(acc => acc.category === 'Beban' && acc.balance !== 0).forEach(account => {
+                totalExpenses += account.balance;
+                expensesHtml += `
+                    <div class="flex justify-between">
+                        <span><span class="account-code">${account.code}</span> ${account.name}</span>
+                        <span class="font-medium">${formatCurrency(account.balance)}</span>
+                    </div>
+                `;
+            });
+            expensesSection.innerHTML = expensesHtml;
+            
+            const netIncome = totalRevenue - totalExpenses;
+            
+            document.getElementById('totalRevenueIS').textContent = formatCurrency(totalRevenue);
+            document.getElementById('totalExpensesIS').textContent = formatCurrency(totalExpenses);
+            document.getElementById('netIncomeIS').textContent = formatCurrency(netIncome);
+        }
+        
+        // Update analytics
+        function updateAnalytics() {
+            const totalAssets = accounts.filter(acc => acc.category === 'Aset').reduce((sum, acc) => sum + acc.balance, 0);
+            const totalLiabilities = accounts.filter(acc => acc.category === 'Kewajiban').reduce((sum, acc) => sum + acc.balance, 0);
+            const totalEquity = accounts.filter(acc => acc.category === 'Ekuitas').reduce((sum, acc) => sum + acc.balance, 0);
+            const totalRevenue = accounts.filter(acc => acc.category === 'Pendapatan').reduce((sum, acc) => sum + acc.balance, 0);
+            const totalExpenses = accounts.filter(acc => acc.category === 'Beban').reduce((sum, acc) => sum + acc.balance, 0);
+            const netIncome = totalRevenue - totalExpenses;
+            
+            // Current assets (simplified - assuming all assets are current)
+            const currentAssets = totalAssets;
+            const currentLiabilities = totalLiabilities;
+            
+            // Calculate ratios
+            const currentRatio = currentLiabilities > 0 ? (currentAssets / currentLiabilities).toFixed(2) : '0.00';
+            const debtToEquity = totalEquity > 0 ? (totalLiabilities / totalEquity).toFixed(2) : '0.00';
+            const roa = totalAssets > 0 ? ((netIncome / totalAssets) * 100).toFixed(2) : '0.00';
+            const roe = totalEquity > 0 ? ((netIncome / totalEquity) * 100).toFixed(2) : '0.00';
+            
+            document.getElementById('currentRatio').textContent = currentRatio;
+            document.getElementById('debtToEquity').textContent = debtToEquity;
+            document.getElementById('roa').textContent = roa + '%';
+            document.getElementById('roe').textContent = roe + '%';
+        }
+        
+        // Initialize charts
+        function initializeCharts() {
+            // Asset composition chart
+            const ctx1 = document.getElementById('assetChart').getContext('2d');
+            const assetData = getAssetData();
+            
+            charts.assetChart = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(assetData),
+                    datasets: [{
+                        data: Object.values(assetData),
+                        backgroundColor: [
+                            '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b',
+                            '#ef4444', '#06b6d4', '#84cc16', '#f97316'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+            
+            // Profit/Loss trend chart
+            const ctx2 = document.getElementById('profitLossChart').getContext('2d');
+            const profitLossData = getProfitLossData();
+            
+            charts.profitLossChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: profitLossData.labels,
+                    datasets: [{
+                        label: 'Laba Rugi',
+                        data: profitLossData.data,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Get asset data for chart
+        function getAssetData() {
+            const assetData = {};
+            accounts.filter(acc => acc.category === 'Aset' && acc.balance > 0).forEach(account => {
+                assetData[account.name] = account.balance;
+            });
+            return assetData;
+        }
+        
+        // Get profit/loss data for chart
+        function getProfitLossData() {
+            // Simplified - showing current month only
+            const totalRevenue = accounts.filter(acc => acc.category === 'Pendapatan').reduce((sum, acc) => sum + acc.balance, 0);
+            const totalExpenses = accounts.filter(acc => acc.category === 'Beban').reduce((sum, acc) => sum + acc.balance, 0);
+            const netIncome = totalRevenue - totalExpenses;
+            
+            return {
+                labels: ['Bulan Ini'],
+                data: [netIncome]
+            };
+        }
+        
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+        
+        // Export to Excel
+        function exportToExcel() {
+            if (journalEntries.length === 0) {
+                showNotification('⚠️ Tidak ada data untuk diekspor!', 'warning');
+                return;
+            }
+            
+            // Create CSV content with BOM for proper UTF-8 encoding
+            const BOM = '\uFEFF';
+            
+            // Journal entries
+            let csvContent = BOM + 'JURNAL UMUM\n';
+            csvContent += 'Tanggal,Referensi,Keterangan,Kode Akun,Nama Akun,Debit,Kredit\n';
+            
+            journalEntries.forEach(journal => {
+                journal.entries.forEach(entry => {
+                    const account = accounts.find(acc => acc.code === entry.account);
+                    csvContent += [
+                        journal.date,
+                        journal.reference,
+                        `"${journal.description.replace(/"/g, '""')}"`,
+                        entry.account,
+                        account ? account.name : 'Unknown',
+                        entry.debit || '',
+                        entry.credit || ''
+                    ].join(',') + '\n';
+                });
+            });
+            
+            // Chart of accounts
+            csvContent += '\n\nCHART OF ACCOUNTS\n';
+            csvContent += 'Kode,Nama Akun,Kategori,Saldo\n';
+            
+            accounts.forEach(account => {
+                csvContent += [
+                    account.code,
+                    `"${account.name.replace(/"/g, '""')}"`,
+                    account.category,
+                    account.balance
+                ].join(',') + '\n';
+            });
+            
+            // Create and download file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `laporan-akuntansi-${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('📊 Data berhasil diekspor ke Excel!', 'success');
+        }
+        
+        // Generate financial statements
+        function generateFinancialStatements() {
+            showSection('financial-statements');
+            showNotification('📋 Laporan keuangan berhasil dibuat!', 'success');
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification px-6 py-4 rounded-xl text-white font-medium shadow-2xl animate-slide-up ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'warning' ? 'bg-yellow-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(400px)';
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 4000);
+        }
+        
+        // Event listeners
+        document.getElementById('ledgerAccountFilter').addEventListener('change', renderGeneralLedger);
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + N for new journal
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                showSection('journal-entry');
+                document.getElementById('journalDate').focus();
+            }
+            
+            // Ctrl/Cmd + E for export
+            if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+                e.preventDefault();
+                exportToExcel();
+            }
+        });
+        
+        // Responsive sidebar
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) {
+                document.getElementById('sidebar').classList.remove('hidden');
+            } else {
+                document.getElementById('sidebar').classList.add('hidden');
+            }
+        });
+        
+        // Initialize default section
+        showSection('dashboard');
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96d68f9ab55f5f44',t:'MTc1NDkwMzAxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
